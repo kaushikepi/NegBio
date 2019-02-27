@@ -1,8 +1,9 @@
 import logging
+import os
 import string
-from pathlib2 import Path
 
 import bioc
+import fire
 
 
 def printable(s, func=None):
@@ -54,17 +55,33 @@ def text2collection(*sources):
     Args:
         sources: a list of pathname
     """
-
     collection = bioc.BioCCollection()
-    for pathname in iter(*sources):
+    for pathname in sources:
         logging.debug('Process %s', pathname)
         try:
             with open(pathname) as fp:
                 text = fp.read()
-            id = Path(pathname).stem
+            id = os.path.splitext(pathname)[0]
             document = text2document(id, text)
             collection.add_document(document)
         except:
             logging.exception('Cannot convert %s', pathname)
     return collection
 
+
+def text_to_collection_file(output, *file):
+    """
+    Convert text FILEs to the BioC output file
+
+    Args:
+        output: Specify the output file name.
+        file: Specify the input text files
+    """
+    logging.basicConfig(level=logging.INFO)
+    collection = text2collection(*file)
+    with open(output, 'w') as fp:
+        bioc.dump(collection, fp)
+
+
+if __name__ == '__main__':
+    fire.Fire(text_to_collection_file)

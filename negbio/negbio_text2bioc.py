@@ -16,6 +16,6 @@ from negbio.pipeline.text2bioc import text2collection
 
 if __name__ == '__main__':
     argv = parse_args(__doc__)
-    collection = text2collection(argv['<file>'])
+    collection = text2collection(*argv['<file>'])
     with open(argv['--output'], 'w') as fp:
         bioc.dump(collection, fp)

@@ -28,17 +28,20 @@ class Bllip(object):
         Returns:
             ScoredParse: parse tree, ScoredParse object in RerankingParser; None if failed
         """
-        if not s:
+        if s is None or (isinstance(s, str) and len(s.strip()) == 0):
             raise ValueError('Cannot parse empty sentence: {}'.format(s))
 
-        nbest = self.rrp.parse(str(s))
-        if nbest:
+        try:
+            nbest = self.rrp.parse(str(s))
             return nbest[0].ptb_parse
-
-        return None
+        except:
+            raise ValueError('Cannot parse sentence: {}'.format(s))
 
 
 class NegBioParser(Bllip):
+
+    PARSE_TREE_ATTRIBUTE = 'parse tree'
+
     def parse_doc(self, document):
         """
         Parse sentences in BioC format
@@ -52,11 +55,10 @@ class NegBioParser(Bllip):
         for passage in document.passages:
             for sentence in passage.sentences:
                 text = sentence.text
-                tree = self.parse(text)
-                if tree:
-                    sentence.infons['parse tree'] = str(tree)
-                else:
-                    sentence.infons['parse tree'] = None
-                    logging.exception(
-                        'No parse tree for sentence: %s', sentence.offset)
+                try:
+                    tree = self.parse(text)
+                    sentence.infons[self.PARSE_TREE_ATTRIBUTE] = str(tree)
+                except:
+                    sentence.infons[self.PARSE_TREE_ATTRIBUTE] = None
+                    logging.exception('No parse tree for sentence: %s', sentence.offset)
         return document

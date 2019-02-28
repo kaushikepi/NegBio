@@ -3,7 +3,6 @@ import os
 import string
 
 import bioc
-import fire
 
 
 def printable(s, func=None):
@@ -81,7 +80,3 @@ def text_to_collection_file(output, *file):
     collection = text2collection(*file)
     with open(output, 'w') as fp:
         bioc.dump(collection, fp)
-
-
-if __name__ == '__main__':
-    fire.Fire(text_to_collection_file)

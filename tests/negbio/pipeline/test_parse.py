@@ -3,7 +3,6 @@ import pytest
 from negbio.pipeline.parse import NegBioParser
 from tests.negbio.test_utils import text_to_document_sentences
 
-
 parser = NegBioParser()
 
 
@@ -27,5 +26,5 @@ def test_NegBioParser():
     with pytest.raises(ValueError):
         parser.parse('\n')
 
-    with pytest.raises(ValueError):
-        parser.parse(u'\xe6')
+    t = parser.parse(u'\xe6')
+    assert str(t) == u'(S1 (S (NP (NN \xe6))))'

@@ -11,3 +11,4 @@ bllipparser==2016.9.11
 pymetamap
 JPype1
 numpy
+pytest-cov

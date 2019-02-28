@@ -16,6 +16,7 @@ dependencies:
   - pathlib2=2.3.3
   - numpy=1.15.4
   - jpype1=0.6.3
+  - pytest-cov
   - pip:
     - bioc==1.1.dev3
     - pystanforddependencies==0.3.1

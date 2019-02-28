@@ -31,7 +31,7 @@ def is_neg_regex(text):
 def _mark_anns(annotations, begin, end, type):
     """Mark all annotations in [begin:end] as type"""
     for ann in annotations:
-        total_loc = ann.get_total_location()
+        total_loc = ann.total_span
         if begin <= total_loc.offset and total_loc.offset + total_loc.length <= end:
             ann.infons[type] = 'True'
 
@@ -72,7 +72,7 @@ def detect(document, detector):
 
             locs = []
             for ann in passage.annotations:
-                total_loc = ann.get_total_location()
+                total_loc = ann.total_span
                 locs.append((total_loc.offset, total_loc.offset + total_loc.length))
 
             for sentence in passage.sentences:

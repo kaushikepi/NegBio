@@ -3,7 +3,7 @@ import sys
 import pytest
 
 from negbio.pipeline.parse import NegBioParser
-from tests.negbio.test_utils import text_to_document_sentences
+from tests.negbio.utils import text_to_document_sentences
 
 parser = NegBioParser()
 

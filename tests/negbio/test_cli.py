@@ -45,8 +45,3 @@ def test_parse():
     assert args['--output'] == 'out'
     assert args['--model'] == 'model'
     assert args['<file>'] == ['a', 'b', 'c']
-
-
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.WARNING)
-    test_ssplit()

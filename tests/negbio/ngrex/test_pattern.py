@@ -2,8 +2,6 @@ import networkx as nx
 from negbio import ngrex
 import pytest
 
-from negbio.ngrex.pattern import validate_names
-
 
 def get_graph():
     G = nx.DiGraph()

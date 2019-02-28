@@ -1,3 +1,5 @@
+import sys
+
 import pytest
 
 from negbio.pipeline.parse import NegBioParser
@@ -26,5 +28,9 @@ def test_NegBioParser():
     with pytest.raises(ValueError):
         parser.parse('\n')
 
-    t = parser.parse(u'\xe6')
-    assert str(t) == u'(S1 (S (NP (NN \xe6))))'
+    if sys.version_info[0] == 2:
+        with pytest.raises(ValueError):
+            parser.parse(u'\xe6')
+    else:
+        t = parser.parse(u'\xe6')
+        assert str(t) == u'(S1 (S (NP (NN \xe6))))'

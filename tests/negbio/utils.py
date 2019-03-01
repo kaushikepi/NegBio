@@ -15,7 +15,7 @@ def text_to_bioc(list_of_text, type, **kwargs):
         return passage
     elif type == 'd/p/s':
         document = bioc.BioCDocument()
-        passage = text_to_bioc('p/s', list_of_text)
+        passage = text_to_bioc(list_of_text, 'p/s')
         document.add_passage(passage)
         return document
     elif type == 'c/d/p/s':

@@ -36,6 +36,7 @@ class NltkSSplitter(object):
         for line in lines:
             offset = text.index(line, offset)
             yield line, offset
+            offset += len(line)
 
     @classmethod
     def no_split(cls, text, **kwargs):

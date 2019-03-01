@@ -3,7 +3,7 @@ import sys
 import pytest
 
 from negbio.pipeline.parse import NegBioParser
-from tests.negbio.utils import text_to_document_sentences
+from tests.negbio.utils import text_to_bioc
 
 
 @pytest.fixture(scope='module')
@@ -33,11 +33,10 @@ class TestNegBioParser:
     def test_parse_doc(self, parser):
         text = 'hello world!'
         tree = '(S1 (S (NP (NN hello) (NN world) (NN !))))'
-        document = text_to_document_sentences('id', [text])
+        document = text_to_bioc([text], type='d/p/s')
         d = parser.parse_doc(document)
         assert d.passages[0].sentences[0].infons['parse tree'] == tree
 
-        document = text_to_document_sentences('id', [''])
+        document = text_to_bioc([''], type='d/p/s')
         d = parser.parse_doc(document)
         assert d.passages[0].sentences[0].infons['parse tree'] is None
-

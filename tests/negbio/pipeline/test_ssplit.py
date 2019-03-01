@@ -1,7 +1,7 @@
 import pytest
 
 from negbio.pipeline.ssplit import NegBioSSplitter
-from tests.negbio.utils import text_to_document_passages
+from tests.negbio.utils import text_to_bioc
 
 
 @pytest.fixture(scope='module')
@@ -59,7 +59,7 @@ class TestNegBioSSplitter:
 
     def test_split_doc(self, splitter):
         text = 'hello world!\nhello world!'
-        document = text_to_document_passages('id', [text])
+        document = text_to_bioc([text], 'd/p')
         p = document.passages[0]
         assert p.text == text
         assert len(p.sentences) == 0

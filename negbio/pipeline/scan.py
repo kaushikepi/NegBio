@@ -9,6 +9,7 @@ import tqdm
 def scan_document(*_, **kwargs):
     """
     Scan each document in a list of BioC source files, apply fn, and print to directory.
+    The output file names are directory/{stem}{suffix}
 
     Args:
         kwargs:
@@ -22,6 +23,7 @@ def scan_document(*_, **kwargs):
                     non_sequence1
                     non_sequence2
                     ...
+            suffix: suffix of output files
             verbose(boolean):
     """
     source = kwargs.pop('source')
@@ -34,25 +36,40 @@ def scan_document(*_, **kwargs):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-    def catch(document, non_sequences):
-        try:
-            return fn(document, *non_sequences)
-        except:
-            logging.exception('Cannot process %s', document.id)
-
     for pathname in tqdm.tqdm(source, total=len(source), disable=not verbose):
-        basename = os.path.splitext(os.path.basename(pathname))[0]
-        dstname = os.path.join(directory, '{}{}'.format(basename, suffix))
-        with io.open(pathname, encoding='utf8') as fp:
-            collection = bioc.load(fp)
-        collection.documents = [catch(doc, non_sequences) for doc in collection.documents]
-        with io.open(dstname, 'w', encoding='utf8') as fp:
-            bioc.dump(collection, fp)
+        stem = os.path.splitext(os.path.basename(pathname))[0]
+        dstname = os.path.join(directory, '{}{}'.format(stem, suffix))
+        try:
+            with io.open(pathname, encoding='utf8') as fp:
+                collection = bioc.load(fp)
+        except:
+            logging.exception('Cannot read %s', pathname)
+            continue
+
+        new_documents = []
+        for document in collection.documents:
+            try:
+                document = fn(document, *non_sequences)
+                if document is None or not isinstance(document, bioc.BioCDocument):
+                    raise TypeError('The function need to return a document: %s' % fn)
+            except TypeError as e:
+                raise e
+            except:
+                logging.exception('Cannot process %s', document.id)
+            new_documents.append(document)
+        collection.documents = new_documents
+
+        try:
+            with io.open(dstname, 'w', encoding='utf8') as fp:
+                bioc.dump(collection, fp)
+        except:
+            logging.exception('Cannot write %s', pathname)
 
 
 def scan_collection(*_, **kwargs):
     """
     Scan each document in a list of BioC source files, apply fn, and print to directory.
+    The output file names are directory/{stem}{suffix}
 
     Args:
         kwargs:
@@ -66,6 +83,7 @@ def scan_collection(*_, **kwargs):
                     non_sequence1
                     non_sequence2
                     ...
+            suffix: suffix of output files
             verbose(boolean):
     """
     source = kwargs.pop('source')
@@ -79,14 +97,14 @@ def scan_collection(*_, **kwargs):
         os.makedirs(directory)
 
     for pathname in tqdm.tqdm(source, total=len(source), disable=not verbose):
-        basename = os.path.splitext(os.path.basename(pathname))[0]
-        dstname = os.path.join(directory, '{}{}'.format(basename, suffix))
-        with io.open(pathname, encoding='utf8') as fp:
-            collection = bioc.load(fp)
-            try:
-                args = [collection] + non_sequences
-                fn(*args)
-            except:
-                logging.exception('Cannot process %s', collection.source)
-        with io.open(dstname, 'w', encoding='utf8') as fp:
-            bioc.dump(collection, fp)
+        stem = os.path.splitext(os.path.basename(pathname))[0]
+        dstname = os.path.join(directory, '{}{}'.format(stem, suffix))
+        try:
+            with io.open(pathname, encoding='utf8') as fp:
+                collection = bioc.load(fp)
+            args = [collection] + non_sequences
+            fn(*args)
+            with io.open(dstname, 'w', encoding='utf8') as fp:
+                bioc.dump(collection, fp)
+        except:
+            logging.exception('Cannot process %s', pathname)

@@ -5,6 +5,7 @@ python:
 install:
   - pip install --upgrade setuptools
   - pip install -r requirements3.txt
+  - python -m nltk.downloader universal_tagset punkt wordnet
 
 script:
   - py.test --cov=negbio

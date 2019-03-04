@@ -1,21 +1,12 @@
 import pytest
 
-from negbio.pipeline.parse import NegBioParser
 from negbio.pipeline.ptb2ud import NegBioPtb2DepConverter
 from tests.negbio.utils import text_to_bioc
+from tests.negbio.pipeline.test_parse import parser
 
 
-@pytest.fixture(scope='module')
-def parser():
-    return NegBioParser()
-
-
-@pytest.fixture(scope='module')
-def converter():
-    return NegBioPtb2DepConverter(representation='CCprocessed', universal=True)
-
-
-def test_parse(parser, converter):
+def test_parse():
+    converter = NegBioPtb2DepConverter(representation='CCprocessed', universal=True)
     # neg(evidence-2, no-1)
     # !root(ROOT-0, evidence-2)
     # !case(infiltrate-5, of-3)

@@ -6,13 +6,13 @@ from negbio.pipeline.parse import NegBioParser
 from tests.negbio.utils import text_to_bioc
 
 
-@pytest.fixture(scope='module')
-def parser():
-    return NegBioParser()
+parser = None
+if parser is None:
+    parser = NegBioParser()
 
 
 class TestNegBioParser:
-    def test_parse(self, parser):
+    def test_parse(self):
         tree = '(S1 (S (NP (NN hello) (NN world) (NN !))))'
         t = parser.parse('hello world!')
         assert str(t) == tree
@@ -30,7 +30,7 @@ class TestNegBioParser:
             t = parser.parse(u'\xe6')
             assert str(t) == u'(S1 (S (NP (NN \xe6))))'
 
-    def test_parse_doc(self, parser):
+    def test_parse_doc(self):
         text = 'hello world!'
         tree = '(S1 (S (NP (NN hello) (NN world) (NN !))))'
         document = text_to_bioc([text], type='d/p/s')

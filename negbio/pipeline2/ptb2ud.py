@@ -3,6 +3,8 @@ import logging
 import StanfordDependencies
 import bioc
 
+from negbio.pipeline2.pipeline import Pipe
+
 
 class Ptb2DepConverter:
     """
@@ -52,35 +54,30 @@ class Ptb2DepConverter:
         return dependency_graph
 
 
-class NegBioPtb2DepConverter(Ptb2DepConverter):
-    def _contains_parse_tree(self, sentence):
-        """
-        check for empty infons, don't process if empty
-        this sometimes happens with poorly tokenized sentences
-        """
-        try:
-            return 'parse tree' in sentence.infons
-        except:
-            return False
-
-    def convert_doc(self, document):
-        for passage in document.passages:
+class NegBioPtb2DepConverter(Ptb2DepConverter, Pipe):
+    def __call__(self, doc, *args, **kwargs):
+        for passage in doc.passages:
             for sentence in passage.sentences:
-                if not self._contains_parse_tree(sentence):
+                # check for empty infons, don't process if empty
+                # this sometimes happens with poorly tokenized sentences
+                if not sentence.infons:
+                    continue
+                elif not sentence.infons['parse tree']:
                     continue
 
                 try:
-                    dependency_graph = self.convert(sentence.infons['parse tree'])
-                    anns, rels = convert_dg(dependency_graph, sentence.text, sentence.offset,
+                    dependency_graph = self.convert(
+                        sentence.infons['parse tree'])
+                    anns, rels = convert_dg(dependency_graph, sentence.text,
+                                            sentence.offset,
                                             has_lemmas=self._backend == 'jpype')
                     sentence.annotations = anns
                     sentence.relations = rels
                 except KeyboardInterrupt:
                     raise
                 except:
-                    logging.exception("Cannot process sentence %d in %s",
-                                      sentence.offset, document.id)
-        return document
+                    logging.exception("Cannot process sentence %d in %s", sentence.offset, doc.id)
+        return doc
 
 
 def adapt_value(value):

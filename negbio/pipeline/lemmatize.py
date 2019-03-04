@@ -19,12 +19,18 @@ class Lemmatizer(object):
         Returns:
             str: lemma
         """
-        if pos:
+        if pos is not None:
+            pos = self.map_tag(pos)
+
+        if pos is not None:
             return self.wordnet_lemmatizer.lemmatize(word=word, pos=pos)
         else:
             return self.wordnet_lemmatizer.lemmatize(word=word)
 
     def map_tag(self, tag):
+        """
+        Convert POS from ptb to NLTK universal
+        """
         if tag in self.mapping:
             tag = self.mapping[tag]
             if tag == 'NOUN':
@@ -45,7 +51,6 @@ class Lemmatizer(object):
                 for ann in sentence.annotations:
                     text = ann.text
                     pos = ann.infons['tag']
-                    pos = self.map_tag(pos)
                     lemma = self.lemmatize(word=text, pos=pos)
                     ann.infons['lemma'] = lemma.lower()
         return document

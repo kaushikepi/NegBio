@@ -12,7 +12,7 @@ def create_collections():
     filenames = []
     top_dir = tempfile.mkdtemp()
     for i in range(10):
-        c = text_to_bioc(['hello world!'], 'c/d/p')
+        c = text_to_bioc(['No pneumothorax.'], 'c/d/p')
         filename = os.path.join(top_dir, '{}.xml'.format(i))
         with open(filename, 'w') as fp:
             bioc.dump(c, fp)

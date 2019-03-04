@@ -11,13 +11,13 @@ def splitter():
 
 class TestNegBioSSplitter:
     def test_split(self, splitter):
-        text = 'hello world! hello world!'
+        text = 'No pneumothorax. No pneumothorax.'
         rst = [(line, offset) for line, offset in splitter.split(text)]
         assert len(rst) == 2
-        assert rst[0][0] == 'hello world!'
+        assert rst[0][0] == 'No pneumothorax.'
         assert rst[0][1] == 0
-        assert rst[1][0] == 'hello world!'
-        assert rst[1][1] == 13
+        assert rst[1][0] == 'No pneumothorax.'
+        assert rst[1][1] == 17
 
         rst = [(line, offset) for line, offset in splitter.split('')]
         assert len(rst) == 0
@@ -26,25 +26,25 @@ class TestNegBioSSplitter:
 
     def test_init(self):
         ssplit = NegBioSSplitter(newline=True)
-        text = 'hello world \nhello world!'
+        text = 'No pneumothorax \nNo pneumothorax.'
         rst = [(line, offset) for line, offset in ssplit.split(text)]
         assert len(rst) == 2
 
         ssplit = NegBioSSplitter()
-        text = 'hello world \nhello world!'
+        text = 'No pneumothorax \nNo pneumothorax.'
         rst = [(line, offset) for line, offset in ssplit.split(text)]
         assert len(rst) == 1
 
     def test_split_line(self, splitter):
-        text = 'hello world!\nhello world!'
+        text = 'No pneumothorax.\nNo pneumothorax.'
         rst = [(line, offset) for line, offset in splitter.split_line(text)]
         assert len(rst) == 2
-        assert rst[0][0] == 'hello world!'
+        assert rst[0][0] == 'No pneumothorax.'
         assert rst[0][1] == 0
-        assert rst[1][0] == 'hello world!'
-        assert rst[1][1] == 13
+        assert rst[1][0] == 'No pneumothorax.'
+        assert rst[1][1] == 17
 
-        text = 'hello world! hello world!'
+        text = 'No pneumothorax. No pneumothorax.'
         rst = [(line, offset) for line, offset in splitter.split_line(text)]
         assert len(rst) == 1
         assert rst[0][0] == text
@@ -58,7 +58,7 @@ class TestNegBioSSplitter:
         assert rst[0][1] == 0
 
     def test_split_doc(self, splitter):
-        text = 'hello world!\nhello world!'
+        text = 'No pneumothorax.\nNo pneumothorax.'
         document = text_to_bioc([text], 'd/p')
         p = document.passages[0]
         assert p.text == text
@@ -67,7 +67,7 @@ class TestNegBioSSplitter:
         document = splitter.split_doc(document)
         p = document.passages[0]
         assert len(p.sentences) == 2
-        assert p.sentences[0].text == 'hello world!'
+        assert p.sentences[0].text == 'No pneumothorax.'
         assert p.sentences[0].offset == 0
-        assert p.sentences[1].text == 'hello world!'
-        assert p.sentences[1].offset == 13
+        assert p.sentences[1].text == 'No pneumothorax.'
+        assert p.sentences[1].offset == 17

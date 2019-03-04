@@ -5,7 +5,7 @@ from tests.negbio.utils import text_to_bioc
 
 
 def test_clean_sentences():
-    doc = text_to_bioc(['hello world', 'hello world'], type='d/p/s')
+    doc = text_to_bioc(['No pneumothorax.', 'No pneumothorax.'], type='d/p/s')
     p = doc.passages[0]
     for i in range(10, 0, -1):
         ann = bioc.BioCAnnotation()

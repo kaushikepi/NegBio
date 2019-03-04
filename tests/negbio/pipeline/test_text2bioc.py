@@ -8,7 +8,7 @@ from negbio.pipeline.text2bioc import text2collection, printable, text2document,
 
 
 def test_printable():
-    text = 'Hello world!'
+    text = 'No pneumothorax.'
     actual = printable(text)
     assert actual == text
 
@@ -29,13 +29,13 @@ def test_text2document():
         assert p.text == expected
 
     id = 'id'
-    text = 'Hello world!'
+    text = 'No pneumothorax.'
     _helper(id, text, text)
     _helper(id, text + '\b\r\n', text+'\n')
 
 
 def test_text2collection():
-    text = 'Hello world!'
+    text = 'No pneumothorax.'
 
     input = tempfile.mktemp()
     with open(input, 'w') as fp:
@@ -59,7 +59,7 @@ def test_text2collection():
 
 
 def test_text_to_collection_file():
-    text = 'Hello world!'
+    text = 'No pneumothorax.'
 
     input = tempfile.mktemp()
     with open(input, 'w') as fp:

@@ -124,8 +124,7 @@ def is_neg_graph2(graph, begin, end):
             break
 
         if state == 0:
-            if graph.node[node]['lemma'] in (
-                    'without', 'no', 'resolve', 'resolution', 'rosolution'):
+            if graph.node[node]['lemma'] in ('without', 'no', 'resolve', 'resolution'):
                 state = 1
         elif state == 1:
             if graph.node[node]['tag'].startswith('N'):

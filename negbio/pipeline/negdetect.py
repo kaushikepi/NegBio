@@ -53,7 +53,8 @@ def _extend(document, type):
                     if ann in nann:
                         ann.infons[type] = 'True'
                         break
-                    if nann in ann and 'CUI' in ann and 'CUI' in nann and ann.infons['CUI'] == nann.infons['CUI']:
+                    if nann in ann and 'CUI' in ann.infons and 'CUI' in nann.infons \
+                            and ann.infons['CUI'] == nann.infons['CUI']:
                         ann.infons[type] = 'True'
                         break
 
@@ -77,7 +78,8 @@ def detect(document, detector):
 
             for sentence in passage.sentences:
                 if is_neg_regex(sentence.text):
-                    _mark_anns(passage.annotations, sentence.offset, sentence.offset + len(sentence.text),
+                    _mark_anns(passage.annotations, sentence.offset,
+                               sentence.offset + len(sentence.text),
                                Detector.NEGATION)
                     continue
                 for name, matcher, loc in detector.detect(sentence, locs):
@@ -89,3 +91,35 @@ def detect(document, detector):
     except:
         logging.exception("Cannot process %s", document.id)
     return document
+
+
+class NegBioNegDetector:
+    def __init__(self, detector):
+        self.detector = detector
+
+    def detect(self, document):
+        try:
+            for passage in document.passages:
+                neg_mesh(passage.annotations)
+                uncertain_mesh(passage.annotations)
+
+                locs = []
+                for ann in passage.annotations:
+                    total_loc = ann.total_span
+                    locs.append((total_loc.offset, total_loc.offset + total_loc.length))
+
+                for sentence in passage.sentences:
+                    if is_neg_regex(sentence.text):
+                        _mark_anns(passage.annotations, sentence.offset,
+                                   sentence.offset + len(sentence.text),
+                                   Detector.NEGATION)
+                        continue
+                    for name, matcher, loc in self.detector.detect(sentence, locs):
+                        logging.debug('Find: %s, %s, %s', name, matcher.pattern, loc)
+                        _mark_anns(passage.annotations, loc[0], loc[1], name)
+
+            # _extend(document, Detector.NEGATION)
+            # _extend(document, Detector.UNCERTAINTY)
+        except:
+            logging.exception("Cannot process %s", document.id)
+        return document

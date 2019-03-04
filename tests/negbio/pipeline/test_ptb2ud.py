@@ -6,12 +6,13 @@ from tests.negbio.utils import text_to_bioc
 
 class TestNegBioPtb2DepConverter:
     def test_convert_doc(self):
-        c = NegBioPtb2DepConverter()
         text = 'No pneumothorax.'
         tree = '(S1 (S (S (NP (DT No) (NN pneumothorax))) (. .)))'
         d = text_to_bioc([text], type='d/p/s')
         s = d.passages[0].sentences[0]
         s.infons['parse tree'] = tree
+
+        c = NegBioPtb2DepConverter()
         d = c.convert_doc(d)
         s = d.passages[0].sentences[0]
 

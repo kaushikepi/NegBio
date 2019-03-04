@@ -40,17 +40,3 @@ def text_to_bioc(list_of_text, type, **kwargs):
         return c
     else:
         raise KeyError
-
-
-def text_to_document_passages(id, passages):
-    """
-    Convert a list of text to a BioCDocument instance
-
-    Args:
-        id (str): BioCDocument id
-        sentences (list): a list of passages
-
-    Returns:
-        BioCDocument: a BioCDocument instance
-    """
-    return text_to_bioc(passages, 'd/p')

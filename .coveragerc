@@ -12,3 +12,7 @@ exclude_lines =
 
 [tool:pytest]
 addopts = --cov=negbio --cov-report html
+
+[run]
+omit =
+    negbio/pipeline2/*

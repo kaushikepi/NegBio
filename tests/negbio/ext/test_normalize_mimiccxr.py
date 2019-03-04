@@ -20,3 +20,14 @@ def test_normalize():
     d = text_to_bioc([text], 'd/p')
     d = normalize(d)
     assert d.passages[0].text == expe
+
+    d.passages[0].text = None
+    normalize(d)
+
+    # skip if there is more than one passages
+    d = text_to_bioc([text, text], 'd/p')
+    d = normalize(d)
+    assert d.passages[0].text == text
+
+    del d.passages[:]
+    normalize(d)

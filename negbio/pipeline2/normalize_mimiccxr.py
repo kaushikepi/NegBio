@@ -1,6 +1,8 @@
 import logging
 import re
 
+from negbio.pipeline2.pipeline import Pipe
+
 
 def pattern_repl(matchobj):
     """
@@ -14,10 +16,6 @@ def sub(text):
     text = re.sub(r'\[\*\*.*?\*\*\]', pattern_repl, text)
     text = re.sub(r'_', ' ', text)
     return text
-
-
-def find_start(text):
-    return 0
 
 
 def find_end(text):
@@ -38,29 +36,25 @@ def find_end(text):
 
 def trim(text):
     text = sub(text)
-    start = find_start(text)
+    start = 0
     end = find_end(text)
 
     new_text = ''
-    if start > 0:
-        new_text += ' ' * start
     new_text += text[start:end]
     if len(text) - end > 0:
         new_text += ' ' * (len(text) - end)
     return new_text
 
 
-def normalize(document):
-    """
-    Assume there are only one passage in the document
-    """
-    try:
-        if len(document.passages) == 0:
-            logging.warning('Skipped: there is no text in document %s', document.id)
-        elif len(document.passages) > 1:
-            logging.warning('Skipped: there is more than one passage in document %s', document.id)
-        else:
-            document.passages[0].text = trim(document.passages[0].text)
-        return document
-    except:
-        logging.exception('Cannot find text in document %s', document.id)
+class MIMICCXRNormalizer(Pipe):
+    def __call__(self, doc, *args, **kwargs):
+        try:
+            if len(doc.passages) == 0:
+                logging.warning('Skipped: there is no text in document %s', doc.id)
+            elif len(doc.passages) > 1:
+                logging.warning('Skipped: there is more than one passage in document %s', doc.id)
+            else:
+                doc.passages[0].text = trim(doc.passages[0].text)
+            return doc
+        except:
+            logging.exception('Cannot find text in document %s', doc.id)

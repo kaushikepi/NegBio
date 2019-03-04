@@ -2,49 +2,9 @@ import logging
 
 import StanfordDependencies
 import bioc
-from nltk.corpus import wordnet
-from nltk.stem.wordnet import WordNetLemmatizer
-from nltk.tag.mapping import tagset_mapping
 
 
-class Lemmatizer(object):
-    def __init__(self):
-        self.wordnet_lemmatizer = WordNetLemmatizer()
-        self.mapping = tagset_mapping('en-ptb', 'universal')
-
-    def lemmatize(self, word, pos=None):
-        """
-        Determines the lemma for a given word
-
-        Args:
-            word(str): word
-            pos(str): part-of-speech
-
-        Returns:
-            str: lemma
-        """
-        if pos:
-            return self.wordnet_lemmatizer.lemmatize(word=word, pos=pos)
-        else:
-            return self.wordnet_lemmatizer.lemmatize(word=word)
-
-    def map_tag(self, tag):
-        if tag in self.mapping:
-            tag = self.mapping[tag]
-            if tag == 'NOUN':
-                return wordnet.NOUN
-            elif tag == 'VERB':
-                return wordnet.VERB
-            elif tag == 'ADJ':
-                return wordnet.ADJ
-            elif tag == 'ADV':
-                return wordnet.ADV
-            elif tag == 'ADJ_SAT':
-                return wordnet.ADJ_SAT
-        return None
-
-
-class Ptb2DepConverter(object):
+class Ptb2DepConverter:
     """
     Convert ptb trees to universal dependencies
     """
@@ -54,7 +14,7 @@ class Ptb2DepConverter(object):
     CCprocessed = 'CCprocessed'
     collapsedTree = 'collapsedTree'
 
-    def __init__(self, lemmatizer, representation='CCprocessed', universal=False):
+    def __init__(self, representation='CCprocessed', universal=False):
         """
         Args:
             representation(str): Currently supported representations are
@@ -63,17 +23,12 @@ class Ptb2DepConverter(object):
         """
         try:
             import jpype
-            __backend = 'jpype'
+            self._backend = 'jpype'
         except ImportError:
-            __backend = 'subprocess'
-        self.lemmatizer = lemmatizer
-        self.__sd = StanfordDependencies.get_instance(backend=__backend)
+            self._backend = 'subprocess'
+        self._sd = StanfordDependencies.get_instance(backend=self._backend)
         self.representation = representation
         self.universal = universal
-        if __backend == 'jpype':
-            self.add_lemmas = True
-        else:
-            self.add_lemmas = False
 
     def convert(self, parse_tree):
         """
@@ -85,22 +40,19 @@ class Ptb2DepConverter(object):
         Examples:
             (ROOT (NP (JJ hello) (NN world) (. !)))
         """
-        dependency_graph = self.__sd.convert_tree(parse_tree,
-                                                  representation=self.representation,
-                                                  universal=self.universal,
-                                                  add_lemmas=self.add_lemmas)
+        if self._backend == 'jpype':
+            dependency_graph = self._sd.convert_tree(parse_tree,
+                                                      representation=self.representation,
+                                                      universal=self.universal,
+                                                      add_lemmas=True)
+        else:
+            dependency_graph = self._sd.convert_tree(parse_tree,
+                                                      representation=self.representation,
+                                                      universal=self.universal)
         return dependency_graph
 
 
 class NegBioPtb2DepConverter(Ptb2DepConverter):
-    def __init__(self, lemmatizer, representation='CCprocessed', universal=False):
-        """
-        Args:
-            lemmatizer (Lemmatizer)
-        """
-        super(NegBioPtb2DepConverter, self).__init__(
-            lemmatizer, representation, universal)
-
     def convert_doc(self, document):
         for passage in document.passages:
             for sentence in passage.sentences:
@@ -116,7 +68,7 @@ class NegBioPtb2DepConverter(Ptb2DepConverter):
                         sentence.infons['parse tree'])
                     anns, rels = convert_dg(dependency_graph, sentence.text,
                                             sentence.offset,
-                                            has_lemmas=self.add_lemmas)
+                                            has_lemmas=self._backend == 'jpype')
                     sentence.annotations = anns
                     sentence.relations = rels
                 except KeyboardInterrupt:
@@ -124,14 +76,6 @@ class NegBioPtb2DepConverter(Ptb2DepConverter):
                 except:
                     logging.exception(
                         "Cannot process sentence %d in %s", sentence.offset, document.id)
-
-                if not self.add_lemmas:
-                    for ann in sentence.annotations:
-                        text = ann.text
-                        pos = ann.infons['tag']
-                        pos = self.lemmatizer.map_tag(pos)
-                        lemma = self.lemmatizer.lemmatize(word=text, pos=pos)
-                        ann.infons['lemma'] = lemma.lower()
         return document
 
 

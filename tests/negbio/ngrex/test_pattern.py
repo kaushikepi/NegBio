@@ -5,12 +5,12 @@ import pytest
 
 def get_graph():
     G = nx.DiGraph()
-    G.add_node('xxx', attr_dict={'lemma': 'xxx'})
-    G.add_node('yyy', attr_dict={'lemma': 'yyy'})
-    G.add_node('zzz', attr_dict={'lemma': 'zzz'})
-    G.add_edge('xxx', 'yyy', attr_dict={'dependency': 'aaa'})
-    G.add_edge('yyy', 'zzz', attr_dict={'dependency': 'bbb'})
-    G.add_edge('xxx', 'zzz', attr_dict={'dependency': 'ccc'})
+    G.add_node('xxx', lemma='xxx')
+    G.add_node('yyy', lemma='yyy')
+    G.add_node('zzz', lemma='zzz')
+    G.add_edge('xxx', 'yyy', dependency='aaa')
+    G.add_edge('yyy', 'zzz', dependency='bbb')
+    G.add_edge('xxx', 'zzz', dependency='ccc')
     return G
 
 

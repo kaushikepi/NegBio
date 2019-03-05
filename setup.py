@@ -20,8 +20,8 @@ def readme():
 
 
 def read_requirements():
-    """parses requirements from requirements.txt"""
-    reqs_path = os.path.join(here, 'requirements.txt')
+    """parses requirements from requirements2.txt"""
+    reqs_path = os.path.join(here, 'requirements3.txt')
     with open(reqs_path, encoding='utf8') as f:
         reqs = [line.strip() for line in f if not line.strip().startswith('#')]
 

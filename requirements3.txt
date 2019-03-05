@@ -1,7 +1,7 @@
 docutils
 docopt
 pytest
-networkx==1.11
+networkx
 ply
 tqdm
 nltk

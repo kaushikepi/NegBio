@@ -139,3 +139,20 @@ def test_text2bioc():
         assert actual_doc.id == expected_doc.id
         for actual_p, expected_p in zip(actual_doc.passages, expected_doc.passages):
             assert actual_p.text.strip() == expected_p.text.strip()
+
+
+def test_dner_chexpert():
+    source = get_example_dir() / '1.xml'
+    output = Path(tempfile.mkdtemp())
+    suffix = '.dner_chexpert.xml'
+    cmd = f'python negbio/negbio_pipeline.py dner_chexpert ' \
+          f'--output={output} --suffix {suffix} {source}'
+    call(cmd.split())
+    with open(output / '1.dner_chexpert.xml') as fp:
+        actual = bioc.load(fp)
+    with open(get_example_dir() / '1.neg.xml') as fp:
+        expected = bioc.load(fp)
+
+    for actual_ann, expected_ann in zip(biocitertools.annotations(actual, level=bioc.SENTENCE),
+                                        biocitertools.annotations(expected, level=bioc.SENTENCE)):
+        assert actual_ann.text == expected_ann.text

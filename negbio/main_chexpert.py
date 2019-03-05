@@ -31,10 +31,10 @@ Options:
 from __future__ import print_function
 
 import os
+from pathlib import Path
 
 import bioc
 import tqdm
-from pathlib2 import Path
 
 from negbio.chexpert.stages.aggregate import NegBioAggregator
 from negbio.chexpert.stages.classify import ModifiedDetector, CATEGORIES
@@ -42,12 +42,13 @@ from negbio.chexpert.stages.extract import NegBioExtractor
 from negbio.chexpert.stages.load import NegBioLoader
 from negbio.cli_utils import parse_args, get_absolute_path
 from negbio.pipeline import text2bioc, negdetect
+from negbio.pipeline.lemmatize import Lemmatizer
 from negbio.pipeline.parse import NegBioParser
-from negbio.pipeline.ptb2ud import NegBioPtb2DepConverter, Lemmatizer
+from negbio.pipeline.ptb2ud import NegBioPtb2DepConverter
 from negbio.pipeline.ssplit import NegBioSSplitter
 
 
-def pipeline(collection, loader, ssplitter, extractor, parser, ptb2dep, neg_detector, aggregator, verbose=False):
+def pipeline(collection, loader, ssplitter, extractor, parser, ptb2dep, lemmatizer, neg_detector, aggregator, verbose=False):
     """
     Args:
         loader (NegBioLoader)
@@ -55,6 +56,7 @@ def pipeline(collection, loader, ssplitter, extractor, parser, ptb2dep, neg_dete
         parser (NegBioParser)
         extractor (NegBioExtractor)
         ptb2dep (NegBioPtb2DepConverter)
+        lemmatizer (Lemmatizer)
         neg_detector (ModifiedDetector)
         aggregator (NegBioAggregator)
     """
@@ -69,6 +71,8 @@ def pipeline(collection, loader, ssplitter, extractor, parser, ptb2dep, neg_dete
         document = extractor.extract_doc(document)
         document = parser.parse_doc(document)
         document = ptb2dep.convert_doc(document)
+        if ptb2dep._backend == 'subprocess':
+            document = lemmatizer.lemmatize_doc(document)
         document = negdetect.detect(document, neg_detector)
         document = aggregator.aggregate_doc(document)
         # remove sentence
@@ -83,7 +87,7 @@ def main():
     print(argv)
 
     lemmatizer = Lemmatizer()
-    ptb2dep = NegBioPtb2DepConverter(lemmatizer, universal=True)
+    ptb2dep = NegBioPtb2DepConverter(universal=True)
     ssplitter = NegBioSSplitter(newline=argv['--newline_is_sentence_break'])
     parser = NegBioParser(model_dir=argv['--bllip-model'])
 
@@ -121,7 +125,8 @@ def main():
     else:
         raise KeyError
 
-    pipeline(collection, loader, ssplitter, extractor, parser, ptb2dep, neg_detector, aggregator,
+    pipeline(collection, loader, ssplitter, extractor, parser, ptb2dep, lemmatizer,
+             neg_detector, aggregator,
              verbose=argv['--verbose'])
 
     with open(os.path.expanduser(argv['--output']), 'w') as fp:

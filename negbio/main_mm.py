@@ -30,12 +30,13 @@ import pymetamap
 from negbio.cli_utils import parse_args, get_absolute_path
 from negbio.pipeline import negdetect, text2bioc, dner_mm
 from negbio.negbio_dner_matamap import read_cuis
+from negbio.pipeline.lemmatize import Lemmatizer
 from negbio.pipeline.parse import NegBioParser
 from negbio.pipeline.ssplit import NegBioSSplitter
-from negbio.pipeline.ptb2ud import NegBioPtb2DepConverter, Lemmatizer
+from negbio.pipeline.ptb2ud import NegBioPtb2DepConverter
 
 
-def pipeline(collection, metamap, splitter, parser, ptb2dep, neg_detector, cuis):
+def pipeline(collection, metamap, splitter, parser, ptb2dep, lemmatizer, neg_detector, cuis):
     """
 
     Args:
@@ -43,6 +44,7 @@ def pipeline(collection, metamap, splitter, parser, ptb2dep, neg_detector, cuis)
         parser (NegBioParser)
         ptb2dep (NegBioPtb2DepConverter)
         neg_detector (Detector):
+        lemmatizer (Lemmatizer)
 
     Returns:
 
@@ -55,6 +57,8 @@ def pipeline(collection, metamap, splitter, parser, ptb2dep, neg_detector, cuis)
     for document in collection.documents:
         document = parser.parse_doc(document)
         document = ptb2dep.convert_doc(document)
+        if ptb2dep._backend == 'subprocess':
+            document = lemmatizer.lemmatize_doc(document)
         document = negdetect.detect(document, neg_detector)
         # remove sentence
         for passage in document.passages:
@@ -68,7 +72,7 @@ def main():
     print(argv)
 
     lemmatizer = Lemmatizer()
-    ptb2dep = NegBioPtb2DepConverter(lemmatizer, universal=True)
+    ptb2dep = NegBioPtb2DepConverter(universal=True)
     splitter = NegBioSSplitter(newline=argv['--newline_is_sentence_break'])
     parser = NegBioParser(model_dir=argv['--bllip-model'])
 
@@ -95,7 +99,7 @@ def main():
     else:
         raise KeyError
 
-    pipeline(collection, mm, splitter, parser, ptb2dep, neg_detector, cuis)
+    pipeline(collection, mm, splitter, parser, ptb2dep, lemmatizer, neg_detector, cuis)
 
     with open(os.path.expanduser(argv['--output']), 'w') as fp:
         bioc.dump(collection, fp)

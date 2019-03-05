@@ -11,7 +11,7 @@ Options:
     --mention_phrases_dir=<directory>       Directory containing mention phrases for each observation. [default: negbio/chexpert/phrases/mention]
     --unmention_phrases_dir=<directory>     Directory containing unmention phrases  for each observation.  [default: negbio/chexpert/phrases/unmention]
 """
-from pathlib2 import Path
+from pathlib import Path
 
 from negbio.chexpert.stages.extract import NegBioExtractor
 from negbio.cli_utils import parse_args, get_absolute_path

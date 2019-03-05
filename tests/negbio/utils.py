@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import bioc
 
 
@@ -40,3 +42,7 @@ def text_to_bioc(list_of_text, type, **kwargs):
         return c
     else:
         raise KeyError
+
+
+def get_example_dir():
+    return Path(__file__).parent.parent / 'data'

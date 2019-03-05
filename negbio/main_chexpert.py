@@ -1,7 +1,7 @@
 """
 Detect negative and uncertain findings from SOURCE and output to DEST
-Example: python negbio/main_chexpert.py --output=examples/test.neg.xml examples/1.txt examples/2.txt
-         python negbio/main_chexpert.py --skip-to-bioc --output=examples/test.neg.xml examples/1.xml
+Example: python negbio/main_chexpert.py text --output=examples/test.neg.xml examples/1.txt examples/2.txt
+         python negbio/main_chexpert.py bioc --output=examples/test.neg.xml examples/1.xml
 
 Usage:
     main_chexpert text [options] --output=DEST SOURCES ...
@@ -18,7 +18,6 @@ Options:
     --post-negation-uncertainty-patterns=FILE   Post negation uncertainty rules
                                                 [default: negbio/chexpert/patterns/post_negation_uncertainty.txt]
     --bllip-model=MODEL_DIR                     Bllip parser model directory
-                                                [default: ~/.local/share/bllipparser/GENIA+PubMed]
     --split-document                            Split document into passages based on section titles such as "Finding",
                                                 "Impression"
     --newline_is_sentence_break                 Whether to treat newlines as sentence breaks. True means that a newline
@@ -60,11 +59,6 @@ def pipeline(collection, loader, ssplitter, extractor, parser, ptb2dep, lemmatiz
         neg_detector (ModifiedDetector)
         aggregator (NegBioAggregator)
     """
-    # for document in collection.documents:
-    #
-    #     for passage in document.passages:
-    #         passage.text = clean(passage.text)
-    #     ssplitter.split_doc(document)
     for document in tqdm.tqdm(collection.documents, disable=not verbose):
         document = loader.clean_doc(document)
         document = ssplitter.split_doc(document)

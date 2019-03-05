@@ -45,7 +45,7 @@ def test_text2collection():
     assert len(c.documents) == 1
 
     d = c.documents[0]
-    assert d.id == os.path.splitext(input)[0]
+    assert d.id == os.path.splitext(os.path.basename(input))[0]
     assert len(d.passages) == 1
 
     p = d.passages[0]

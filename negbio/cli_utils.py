@@ -25,7 +25,6 @@ def parse_args(doc, **kwargs):
 
 
 def get_absolute_path(argv, key, default_value):
-    print (__root__)
     if argv[key] == default_value:
         argv[key] = os.path.join(__root__, argv[key])
     return argv

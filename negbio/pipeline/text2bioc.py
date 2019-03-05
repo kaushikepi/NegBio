@@ -60,7 +60,7 @@ def text2collection(*sources):
         try:
             with open(pathname) as fp:
                 text = fp.read()
-            id = os.path.splitext(pathname)[0]
+            id = os.path.splitext(os.path.basename(pathname))[0]
             document = text2document(id, text)
             collection.add_document(document)
         except:

@@ -75,18 +75,26 @@ class NegBioNegDetector(Pipe):
                     total_loc = ann.total_span
                     locs.append((total_loc.offset, total_loc.offset + total_loc.length))
 
+                sentence_locs_map = {}
                 for sentence in passage.sentences:
+                    start = sentence.offset
+                    end = start + len(sentence.text)
+                    sublocs = [l for l in locs if start <= l[0] <= end]
+                    if len(sublocs) != 0:
+                        sentence_locs_map[sentence] = sublocs
+
+                for sentence, sublocs in sentence_locs_map.items():
                     if is_neg_regex(sentence.text):
                         _mark_anns(passage.annotations, sentence.offset,
                                    sentence.offset + len(sentence.text),
                                    Detector.NEGATION)
                         continue
-                    for name, matcher, loc in self.detector.detect(sentence, locs):
+                    for name, matcher, loc in self.detector.detect(sentence, sublocs):
                         logging.debug('Find: %s, %s, %s', name, matcher.pattern, loc)
                         _mark_anns(passage.annotations, loc[0], loc[1], name)
 
             # _extend(document, Detector.NEGATION)
             # _extend(document, Detector.UNCERTAINTY)
         except:
-            logging.exception("Cannot process %s", document.id)
-        return document
+            logging.exception("Cannot process %s", doc.id)
+        return doc

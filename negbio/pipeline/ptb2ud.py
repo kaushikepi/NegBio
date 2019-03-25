@@ -78,8 +78,8 @@ class NegBioPtb2DepConverter(Ptb2DepConverter):
                 except KeyboardInterrupt:
                     raise
                 except:
-                    logging.exception("Cannot process sentence %d in %s",
-                                      sentence.offset, document.id)
+                    logging.exception("Cannot process sentence %d in %s: %s",
+                                      sentence.offset, document.id, sentence.text)
         return document
 
 

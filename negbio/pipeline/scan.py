@@ -24,6 +24,7 @@ def scan_document(*_, **kwargs):
                     non_sequence2
                     ...
             suffix: suffix of output files
+            skip_exists: if the output file exists, do not process the file
             verbose(boolean):
     """
     source = kwargs.pop('source')
@@ -41,11 +42,11 @@ def scan_document(*_, **kwargs):
         stem = os.path.splitext(os.path.basename(pathname))[0]
         dstname = os.path.join(directory, '{}{}'.format(stem, suffix))
 
-        # add file lock
         if skip_exists:
             if os.path.exists(dstname):
                 continue
 
+        # add file lock
         lckname = dstname + '.lck'
         if os.path.exists(lckname):
             continue

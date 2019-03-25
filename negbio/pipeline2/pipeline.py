@@ -1,8 +1,10 @@
 import logging
+import os
 from pathlib import Path
 
 import bioc
 import tqdm
+from filelock import FileLock
 
 
 class Pipe:
@@ -43,18 +45,38 @@ class NegBioPipeline:
                 directory(str): output directory
                 suffix: suffix of output files
                 verbose(boolean):
+                skip_exists: if the output file exists, do not process the file
         """
         source = kwargs.pop('source')
         verbose = kwargs.pop('verbose', True)
         directory = Path(kwargs.pop('directory'))
         suffix = kwargs.pop('suffix')
+        skip_exists = kwargs.pop('skip_exists', False)
 
         if not directory.exists():
             directory.mkdir(parents=True)
 
-        for pathname in tqdm.tqdm(source, total=len(source), disable=not verbose):
+        for pathname in tqdm.tqdm(source, total=len(source), disable=not verbose, unit='col'):
             stem = Path(pathname).stem
             dstname = directory / '{}{}'.format(stem, suffix)
+
+            if skip_exists:
+                if dstname.exists():
+                    continue
+
+            if pathname.suffix != '.xml':
+                logging.exception('Filename must end with .xml: %s', pathname)
+                continue
+
+            # add file lock
+            lckname = dstname.with_suffix('.lck')
+            if lckname.exists():
+                logging.warning('Skip %s because of the lock file', pathname)
+                continue
+
+            with open(lckname, 'w') as _:
+                pass
+
             try:
                 with open(pathname, encoding='utf8') as fp:
                     collection = bioc.load(fp)
@@ -78,3 +100,5 @@ class NegBioPipeline:
                     bioc.dump(collection, fp)
             except:
                 logging.exception('Cannot write %s', pathname)
+            finally:
+                os.remove(lckname)

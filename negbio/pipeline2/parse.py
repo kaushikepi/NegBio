@@ -1,5 +1,6 @@
 import logging
 import os
+import string
 import tempfile
 
 from bllipparser import ModelFetcher
@@ -55,6 +56,9 @@ class NegBioParser(Bllip, Pipe):
         for passage in doc.passages:
             for sentence in passage.sentences:
                 text = sentence.text
+                if text in string.punctuation:
+                    sentence.infons[self.PARSE_TREE_ATTRIBUTE] = None
+                    continue
                 try:
                     tree = self.parse(text)
                     sentence.infons[self.PARSE_TREE_ATTRIBUTE] = str(tree)

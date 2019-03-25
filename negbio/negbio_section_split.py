@@ -30,5 +30,5 @@ if __name__ == '__main__':
     else:
         patterns = read_section_titles(argv['--pattern'])
 
-    scan_document(source=argv['<file>'], verbose=argv['--verbose'], suffix=argv['--suffix'],
+    scan_document(source=argv['<file>'], suffix=argv['--suffix'],
                   directory=argv['--output'], fn=split_document, non_sequences=[patterns])

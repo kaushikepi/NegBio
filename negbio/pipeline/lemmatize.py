@@ -1,3 +1,5 @@
+import warnings
+
 from nltk import WordNetLemmatizer
 from nltk.corpus import wordnet
 from nltk.tag.mapping import tagset_mapping
@@ -46,6 +48,7 @@ class Lemmatizer(object):
         return None
 
     def lemmatize_doc(self, document):
+        warnings.warn("use pipeline2 instead", PendingDeprecationWarning)
         for passage in document.passages:
             for sentence in passage.sentences:
                 for ann in sentence.annotations:

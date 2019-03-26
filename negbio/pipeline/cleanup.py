@@ -1,3 +1,6 @@
+import warnings
+
+
 def clean_sentences(document, sort_anns=False):
     """
     Remove sentences in each passage
@@ -6,6 +9,7 @@ def clean_sentences(document, sort_anns=False):
         document(BioCDocument): a document
         sort_anns(bool): sort ann by its location
     """
+    warnings.warn("use pipeline2 instead", PendingDeprecationWarning)
     for passage in document.passages:
         del passage.sentences[:]
 

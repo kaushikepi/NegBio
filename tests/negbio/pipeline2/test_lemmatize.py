@@ -1,5 +1,5 @@
-from negbio.pipeline.lemmatize import Lemmatizer
-from negbio.pipeline.ptb2ud import NegBioPtb2DepConverter
+from negbio.pipeline2.lemmatize import Lemmatizer
+from negbio.pipeline2.ptb2ud import NegBioPtb2DepConverter
 from tests.negbio.utils import text_to_bioc
 
 
@@ -13,13 +13,13 @@ def test_lemmatize_doc():
     d = text_to_bioc([text], type='d/p/s')
     s = d.passages[0].sentences[0]
     s.infons['parse tree'] = tree
-    converter.convert_doc(d)
+    converter(d)
 
     expected = []
     for ann in s.annotations:
         expected.append(ann.infons['lemma'])
         del ann.infons['lemma']
 
-    lemmatizer.lemmatize_doc(d)
+    lemmatizer(d)
     for i, ann in enumerate(s.annotations):
         assert expected[i] == ann.infons['lemma']

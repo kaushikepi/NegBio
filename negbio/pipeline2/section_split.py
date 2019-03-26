@@ -1,5 +1,6 @@
 import logging
 import re
+from typing import Pattern
 
 import bioc
 
@@ -35,20 +36,26 @@ def strip(passage):
 
 
 class SectionSplitter(Pipe):
-    def __call__(self, doc, pattern=None, *args, **kwargs):
+    def __init__(self, pattern: Pattern=None):
+        """
+        Args:
+            pattern: the regular expression patterns for section titles.
+        """
+        if pattern is None:
+            self.pattern = SECTION_TITLES
+        else:
+            self.pattern = pattern
+
+    def __call__(self, doc, *args, **kwargs):
         """
         Split one report into sections. Section splitting is a deterministic consequence of section titles.
 
         Args:
             doc(BioCDocument): one document that contains one passage.
-            pattern: the regular expression patterns for section titles.
 
         Returns:
             BioCDocument: a new BioCDocument instance
         """
-        if pattern is None:
-            pattern = SECTION_TITLES
-
         new_document = bioc.BioCDocument()
         new_document.id = doc.id
         new_document.infons = doc.infons
@@ -67,7 +74,7 @@ class SectionSplitter(Pipe):
             return passage
 
         start = 0
-        for matcher in pattern.finditer(text):
+        for matcher in self.pattern.finditer(text):
             logging.debug('Match: %s', matcher.group())
             # add last
             end = matcher.start()

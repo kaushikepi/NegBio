@@ -9,12 +9,13 @@ Options:
     --output=<directory>    Specify the output directory.
     --verbose               Print more information about progress.
     --pattern=<file>        Specify section title list for matching.
+    --overwrite             Overwrite the output file.
 """
 import re
 
 from negbio.cli_utils import parse_args
-from negbio.pipeline.scan import scan_document
-from negbio.pipeline.section_split import split_document
+from negbio.pipeline2.pipeline import NegBioPipeline
+from negbio.pipeline2.section_split import SectionSplitter
 
 
 def read_section_titles(pathname):
@@ -26,9 +27,11 @@ if __name__ == '__main__':
     argv = parse_args(__doc__)
 
     if argv['--pattern'] is None:
-        patterns = None
+        pattern = None
     else:
-        patterns = read_section_titles(argv['--pattern'])
+        pattern = read_section_titles(argv['--pattern'])
 
-    scan_document(source=argv['<file>'], suffix=argv['--suffix'],
-                  directory=argv['--output'], fn=split_document, non_sequences=[patterns])
+    splitter = SectionSplitter(pattern)
+    pipeline = NegBioPipeline(pipeline=[('SectionSplitter', splitter)])
+    pipeline.scan(source=argv['<file>'], suffix=argv['--suffix'],
+                  directory=argv['--output'], overwrite=argv['--overwrite'])

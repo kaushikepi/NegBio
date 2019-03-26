@@ -15,14 +15,13 @@ Options:
     --output=<directory>                        Specify the output directory.
     --workers=<n>                               Number of threads [default: 1]
     --files_per_worker=<n>                      Number of input files per worker [default: 8]
+    --overwrite                                 Overwrite the output file.
 """
-import os
 
 from negbio.chexpert.stages.classify import ModifiedDetector
 from negbio.cli_utils import parse_args, get_absolute_path, calls_asynchronously
-from negbio.pipeline.negdetect import detect
-from negbio.pipeline.scan import scan_document
-
+from negbio.pipeline2.negdetect import NegBioNegDetector
+from negbio.pipeline2.pipeline import NegBioPipeline
 
 if __name__ == '__main__':
     argv = parse_args(__doc__)
@@ -38,10 +37,12 @@ if __name__ == '__main__':
                                  '--neg-patterns',
                                  'negbio/chexpert/patterns/negation.txt')
 
-        neg_detector = ModifiedDetector(argv['--pre-negation-uncertainty-patterns'],
-                                        argv['--neg-patterns'],
-                                        argv['--post-negation-uncertainty-patterns'])
-        scan_document(source=argv['<file>'], directory=argv['--output'], suffix=argv['--suffix'],
-                      fn=detect, non_sequences=[neg_detector], skip_exists=True)
+        neg_detector = NegBioNegDetector(ModifiedDetector(
+            argv['--pre-negation-uncertainty-patterns'],
+            argv['--neg-patterns'],
+            argv['--post-negation-uncertainty-patterns']))
+        pipeline = NegBioPipeline(pipeline=[('ModifiedDetector', neg_detector)])
+        pipeline.scan(source=argv['<file>'], directory=argv['--output'], suffix=argv['--suffix'],
+                      overwrite=argv['--overwrite'])
     else:
         calls_asynchronously(argv, 'python -m negbio.negbio_neg_chexpert neg_chexpert')

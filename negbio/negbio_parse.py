@@ -11,6 +11,7 @@ Options:
     --verbose               Print more information about progress.
     --workers=<n>           Number of threads [default: 1]
     --files_per_worker=<n>  Number of input files per worker [default: 8]
+    --overwrite             Overwrite the output file.
 """
 from negbio.cli_utils import parse_args, calls_asynchronously
 from negbio.pipeline2.parse import NegBioParser
@@ -24,6 +25,6 @@ if __name__ == '__main__':
         parser = NegBioParser(model_dir=argv['--model'])
         pipeline = NegBioPipeline(pipeline=[('NegBioParser', parser)])
         pipeline.scan(source=argv['<file>'], directory=argv['--output'], suffix=argv['--suffix'],
-                      non_sequences=[], skip_exists=True)
+                      overwrite=argv['--overwrite'])
     else:
         calls_asynchronously(argv, 'python -m negbio.negbio_parse parse')

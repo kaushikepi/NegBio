@@ -1,10 +1,10 @@
 import logging
 import os
 from pathlib import Path
+from typing import List, Tuple
 
 import bioc
 import tqdm
-from filelock import FileLock
 
 
 class Pipe:
@@ -22,10 +22,10 @@ class Pipe:
 
 
 class NegBioPipeline:
-    def __init__(self, pipeline):
+    def __init__(self, pipeline: List[Tuple[str, Pipe]]):
         self.pipeline = pipeline
 
-    def __call__(self, doc, *args, **kwargs):
+    def __call__(self, doc: bioc.BioCDocument, *args, **kwargs):
         for name, proc in self.pipeline:
             if not hasattr(proc, '__call__'):
                 raise ValueError('{} has no __call__ function'.format(name))
@@ -43,28 +43,27 @@ class NegBioPipeline:
             kwargs:
                 source(list): a list of source pathnames
                 directory(str): output directory
-                suffix: suffix of output files
-                verbose(boolean):
-                skip_exists: if the output file exists, do not process the file
+                suffix(str): suffix of output files
+                overwrite(boolean): Overwrite the output file.
+                verbose(boolean): Print more information about progress.
         """
         source = kwargs.pop('source')
         verbose = kwargs.pop('verbose', True)
         directory = Path(kwargs.pop('directory'))
         suffix = kwargs.pop('suffix')
-        skip_exists = kwargs.pop('skip_exists', False)
+        overwrite = kwargs.pop('overwrite', False)
 
         if not directory.exists():
             directory.mkdir(parents=True)
 
         for pathname in tqdm.tqdm(source, total=len(source), disable=not verbose, unit='col'):
-            stem = Path(pathname).stem
-            dstname = directory / '{}{}'.format(stem, suffix)
+            pathname = Path(pathname)
+            dstname = directory / '{}{}'.format(pathname.stem, suffix)
 
-            if skip_exists:
-                if dstname.exists():
-                    continue
+            if not overwrite and dstname.exists():
+                continue
 
-            if os.path.splitext(pathname)[1] != '.xml':
+            if pathname.suffix != '.xml':
                 logging.exception('Filename must end with .xml: %s', pathname)
                 continue
 
@@ -80,7 +79,7 @@ class NegBioPipeline:
             try:
                 with open(pathname, encoding='utf8') as fp:
                     collection = bioc.load(fp)
-            except:
+            except IOError:
                 logging.exception('Cannot read %s', pathname)
                 os.remove(lckname)
                 continue
@@ -90,8 +89,6 @@ class NegBioPipeline:
                                       leave=False):
                 try:
                     document = self(document)
-                except TypeError as e:
-                    raise e
                 except:
                     logging.exception('Cannot process %s', document.id)
                 new_documents.append(document)

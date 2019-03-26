@@ -12,9 +12,8 @@ Options:
     --output=<directory>            Specify the output directory.
     --workers=<n>                   Number of threads [default: 1]
     --files_per_worker=<n>          Number of input files per worker [default: 32]
+    --overwrite                     Overwrite the output file.
 """
-import os
-
 from negbio.cli_utils import parse_args, get_absolute_path, calls_asynchronously
 from negbio.neg.neg_detector import Detector
 from negbio.pipeline2.negdetect import NegBioNegDetector
@@ -31,10 +30,10 @@ if __name__ == '__main__':
                                  '--uncertainty-patterns',
                                  'negbio/patterns/uncertainty_patterns.txt')
 
-        neg_detector = NegBioNegDetector(Detector(os.path.realpath(argv['--neg-patterns']),
-                                os.path.realpath(argv['--uncertainty-patterns'])))
+        neg_detector = NegBioNegDetector(Detector(argv['--neg-patterns'],
+                                                  argv['--uncertainty-patterns']))
         pipeline = NegBioPipeline(pipeline=[('NegBioNegDetector', neg_detector)])
         pipeline.scan(source=argv['<file>'], directory=argv['--output'], suffix=argv['--suffix'],
-                      non_sequences=[], skip_exists=True)
+                      overwrite=argv['--overwrite'])
     else:
         calls_asynchronously(argv, 'python -m negbio.negbio_neg neg')

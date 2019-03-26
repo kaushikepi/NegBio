@@ -62,4 +62,3 @@ class TestNegBioPtb2DepConverter:
         d = c.convert_doc(d)
         s = d.passages[0].sentences[0]
         assert 'lemma' not in s.annotations[1].infons
-

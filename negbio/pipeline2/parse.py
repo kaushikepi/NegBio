@@ -43,6 +43,12 @@ class NegBioParser(Bllip, Pipe):
 
     PARSE_TREE_ATTRIBUTE = 'parse tree'
 
+    def _all_puncts(self, text):
+        for c in text:
+            if c not in string.punctuation:
+                return False
+        return True
+
     def __call__(self, doc, *args, **kwargs):
         """
         Parse sentences in BioC format
@@ -56,7 +62,7 @@ class NegBioParser(Bllip, Pipe):
         for passage in doc.passages:
             for sentence in passage.sentences:
                 text = sentence.text
-                if text in string.punctuation:
+                if self._all_puncts(text):
                     sentence.infons[self.PARSE_TREE_ATTRIBUTE] = None
                     continue
                 try:

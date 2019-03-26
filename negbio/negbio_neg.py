@@ -17,8 +17,8 @@ import os
 
 from negbio.cli_utils import parse_args, get_absolute_path, calls_asynchronously
 from negbio.neg.neg_detector import Detector
-from negbio.pipeline.negdetect import detect
-from negbio.pipeline.scan import scan_document
+from negbio.pipeline2.negdetect import NegBioNegDetector
+from negbio.pipeline2.pipeline import NegBioPipeline
 
 if __name__ == '__main__':
     argv = parse_args(__doc__)
@@ -31,9 +31,10 @@ if __name__ == '__main__':
                                  '--uncertainty-patterns',
                                  'negbio/patterns/uncertainty_patterns.txt')
 
-        neg_detector = Detector(os.path.realpath(argv['--neg-patterns']),
-                                os.path.realpath(argv['--uncertainty-patterns']))
-        scan_document(source=argv['<file>'], directory=argv['--output'], suffix=argv['--suffix'],
-                      fn=detect, non_sequences=[neg_detector], skip_exists=True)
+        neg_detector = NegBioNegDetector(Detector(os.path.realpath(argv['--neg-patterns']),
+                                os.path.realpath(argv['--uncertainty-patterns'])))
+        pipeline = NegBioPipeline(pipeline=[('NegBioNegDetector', neg_detector)])
+        pipeline.scan(source=argv['<file>'], directory=argv['--output'], suffix=argv['--suffix'],
+                      non_sequences=[], skip_exists=True)
     else:
         calls_asynchronously(argv, 'python -m negbio.negbio_neg neg')

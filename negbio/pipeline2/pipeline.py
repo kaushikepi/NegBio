@@ -64,7 +64,7 @@ class NegBioPipeline:
                 if dstname.exists():
                     continue
 
-            if pathname.suffix != '.xml':
+            if os.path.splitext(pathname)[1] != '.xml':
                 logging.exception('Filename must end with .xml: %s', pathname)
                 continue
 
@@ -82,10 +82,12 @@ class NegBioPipeline:
                     collection = bioc.load(fp)
             except:
                 logging.exception('Cannot read %s', pathname)
+                os.remove(lckname)
                 continue
 
             new_documents = []
-            for document in collection.documents:
+            for document in tqdm.tqdm(collection.documents, unit='doc', disable=not verbose,
+                                      leave=False):
                 try:
                     document = self(document)
                 except TypeError as e:

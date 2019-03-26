@@ -12,16 +12,16 @@ Options:
     --files_per_worker=<n>  Number of input files per worker [default: 8]
 """
 from negbio.cli_utils import parse_args, calls_asynchronously
-from negbio.pipeline.ptb2ud import NegBioPtb2DepConverter
-from negbio.pipeline.scan import scan_document
-
+from negbio.pipeline2.ptb2ud import NegBioPtb2DepConverter
+from negbio.pipeline2.pipeline import NegBioPipeline
 
 if __name__ == '__main__':
     argv = parse_args(__doc__)
     workers = int(argv['--workers'])
     if workers == 1:
-        ptb2dep = NegBioPtb2DepConverter(universal=True)
-        scan_document(source=argv['<file>'], directory=argv['--output'], suffix=argv['--suffix'],
-                      fn=ptb2dep.convert_doc, non_sequences=[])
+        converter = NegBioPtb2DepConverter(universal=True)
+        pipeline = NegBioPipeline(pipeline=[('NegBioPtb2DepConverter', converter)])
+        pipeline.scan(source=argv['<file>'], directory=argv['--output'], suffix=argv['--suffix'],
+                      non_sequences=[], skip_exists=True)
     else:
         calls_asynchronously(argv, 'python -m negbio.negbio_ptb2ud ptb2ud')

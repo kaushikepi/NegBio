@@ -62,12 +62,15 @@ class NegBioPtb2DepConverter(Ptb2DepConverter, Pipe):
                 # this sometimes happens with poorly tokenized sentences
                 if not sentence.infons:
                     continue
-                elif not sentence.infons['parse tree']:
+                elif 'parse tree' not in sentence.infons:
+                    continue
+                elif sentence.infons['parse tree'] is None:
+                    continue
+                elif sentence.infons['parse tree'] == 'None':
                     continue
 
                 try:
-                    dependency_graph = self.convert(
-                        sentence.infons['parse tree'])
+                    dependency_graph = self.convert(sentence.infons['parse tree'])
                     anns, rels = convert_dg(dependency_graph, sentence.text,
                                             sentence.offset,
                                             has_lemmas=self._backend == 'jpype')
@@ -120,7 +123,7 @@ def convert_dg(dependency_graph, text, offset, ann_index=0, rel_index=0, has_lem
             if index == -1:
                 logging.debug('Cannot convert parse tree to dependency graph at %d\n%d\n%s',
                               start, offset, str(dependency_graph))
-                return
+                return [], []
 
         ann = bioc.BioCAnnotation()
         ann.id = 'T{}'.format(ann_index)

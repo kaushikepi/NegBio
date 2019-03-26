@@ -46,7 +46,7 @@ def calls_asynchronously(argv, cmd_prefix):
                 argv['--output'],
                 ' '.join(chunk)
             )
-            print(cmd)
+            logging.debug(cmd)
             future = executor.submit(call, cmd.split(' '))
             future_to_cmd[future] = cmd
         for future in concurrent.futures.as_completed(future_to_cmd):
@@ -54,4 +54,4 @@ def calls_asynchronously(argv, cmd_prefix):
             try:
                 future.result()
             except Exception as exc:
-                print('%r generated an exception: %s' % (cmd, exc))
+                logging.exception('%r generated an exception: %s' % (cmd, exc))

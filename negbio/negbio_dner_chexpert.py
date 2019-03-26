@@ -10,6 +10,7 @@ Options:
     --verbose               Print more information about progress.
     --mention_phrases_dir=<directory>       Directory containing mention phrases for each observation. [default: negbio/chexpert/phrases/mention]
     --unmention_phrases_dir=<directory>     Directory containing unmention phrases  for each observation.  [default: negbio/chexpert/phrases/unmention]
+    --overwrite             Overwrite the output file.
 """
 from pathlib import Path
 

@@ -10,6 +10,7 @@ Options:
     --verbose               Print more information about progress.
     --metamap=<binary>      The MetaMap binary
     --cuis=<file>           Specify CUI list
+    --overwrite             Overwrite the output file.
 """
 
 from negbio.cli_utils import parse_args

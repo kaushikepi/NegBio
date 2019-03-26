@@ -1,8 +1,8 @@
 import itertools
 import re
 
-from chexpert.stages.extract import Extractor
-from pipeline2.pipeline import Pipe
+from negbio.chexpert.stages.extract import Extractor
+from negbio.pipeline2.pipeline import Pipe
 
 
 class ChexpertExtractor(Extractor, Pipe):

@@ -11,6 +11,7 @@ Options:
     --pattern=<file>        Specify section title list for matching.
     --overwrite             Overwrite the output file.
 """
+import logging
 import re
 
 from negbio.cli_utils import parse_args
@@ -20,7 +21,10 @@ from negbio.pipeline2.section_split import SectionSplitter
 
 def read_section_titles(pathname):
     with open(pathname) as fp:
-        return re.compile('|'.join(fp.readlines()), re.MULTILINE)
+        titles = [line.strip() for line in fp]
+        p = '|'.join(titles)
+        logging.debug('Section patterns: %s', p)
+        return re.compile(p, re.IGNORECASE | re.MULTILINE)
 
 
 if __name__ == '__main__':

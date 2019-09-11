@@ -7,6 +7,10 @@
 .. image:: https://img.shields.io/travis/yfpeng/NegBio/master.svg
    :target: https://travis-ci.org/yfpeng/NegBio
    :alt: Build status
+   
+.. image:: https://github.com/yfpeng/negbio/workflows/negbio/badge.svg
+   :alt: Build status
+   :target: https://github.com/yfpeng/NegBio
 
 .. image:: https://img.shields.io/pypi/v/negbio.svg
    :target: https://pypi.python.org/pypi/negbio

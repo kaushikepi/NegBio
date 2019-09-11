@@ -18,10 +18,19 @@ def test_neg_chexpert():
     with open(get_example_dir() / '1.neg_chexpert.xml') as fp:
         expected = bioc.load(fp)
 
-    for actual_ann, expected_ann in zip(biocitertools.annotations(actual, level=bioc.PASSAGE),
-                                        biocitertools.annotations(expected, level=bioc.PASSAGE)):
-        assert actual_ann.total_span == expected_ann.total_span
-        if 'negation' in expected_ann.infons:
-            assert actual_ann.infons['negation']
-        else:
-            assert 'negation' not in actual_ann.infons
+    assert len(actual.documents) == len(expected.documents)
+    for actual_doc, expected_doc in zip(actual.documents, expected.documents):
+        assert actual_doc.id == expected_doc.id
+        actual_anns = list(biocitertools.annotations(actual_doc, level=bioc.PASSAGE))
+        expected_anns = list(biocitertools.annotations(expected_doc, level=bioc.PASSAGE))
+        assert len(actual_anns) == len(expected_anns)
+
+        actual_anns = sorted(actual_anns, key=lambda a: a.total_span.offset)
+        expected_anns = sorted(actual_anns, key=lambda a: a.total_span.offset)
+
+        for actual_ann, expected_ann in zip(actual_anns, expected_anns):
+            assert actual_ann.total_span == expected_ann.total_span
+            if 'negation' in expected_ann.infons:
+                assert actual_ann.infons['negation']
+            else:
+                assert 'negation' not in actual_ann.infons
